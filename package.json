@@ -4,7 +4,7 @@
   "description": "Solutions to https://adventofcode.com",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "$(npm bin)/mocha **/*.spec.js"
   },
   "keywords": [
     "advent",
@@ -14,10 +14,13 @@
   "author": "Ryan Zeigler <zeiglerr@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "chai": "^3.5.0",
-    "kefir": "^3.6.1",
-    "mocha": "^3.2.0",
+    "akh": "^3.1.0",
     "ramda": "^0.22.1",
-    "sanctuary": "^0.11.1"
+    "yargs": "^6.5.0"
+  },
+  "devDependencies": {
+    "jsverify": "^0.7.4",
+    "mocha": "^3.2.0",
+    "chai": "^3.5.0"
   }
 }
