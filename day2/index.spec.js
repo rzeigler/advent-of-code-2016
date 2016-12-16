@@ -9,7 +9,6 @@ const {
     boxBounds,
     boxGrid,
     diamondBounds,
-    diamondGrid,
     move,
     line
 } = require("./index");
