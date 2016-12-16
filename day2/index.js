@@ -1,3 +1,5 @@
+"use strict";
+
 const assert = require("assert");
 const R = require("ramda");
 const {State, ReaderT} = require("akh");
@@ -80,13 +82,13 @@ const diamondGrid = [
 
 const diamondBounds = [
     limitDomain(0, 4),
-    limitRange(x => -x + 4, R.lte),
-    limitRange(x => x + 2, R.lte),
-    limitRange(x => -x + 2, R.gte),
-    limitRange(x => x - 2, R.gte)
+    limitRange(x => -x + 4, R.gte),
+    limitRange(x => x + 2, R.gte),
+    limitRange(x => -x + 2, R.lte),
+    limitRange(x => x - 2, R.lte)
 ];
 
-const diamondStart = pos(0, 5);
+const diamondStart = pos(0, 3);
 
 module.exports = {
     pos,

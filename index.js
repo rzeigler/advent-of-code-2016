@@ -1,4 +1,6 @@
 /*eslint no-console:"off" */
+"use strict";
+
 const {
     day, 
     section,

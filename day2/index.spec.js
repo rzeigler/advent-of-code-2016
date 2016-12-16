@@ -8,6 +8,8 @@ const {
     limitRange,
     boxBounds,
     boxGrid,
+    diamondBounds,
+    diamondGrid,
     move,
     line
 } = require("./index");
@@ -49,11 +51,22 @@ describe("day2", () => {
             expect(result).to.eql({value: "1", state: [0, 0]});
         });
     });
-    describe.only("line", () => {
+    describe("line", () => {
         it("should move along an element", () => {
             const motion = line("ULDDRR");
             const result = State.run(ReaderT.run(motion, {bounds: boxBounds, grid: boxGrid}), [1, 1]);
             expect(result).to.eql({value: "9", state: [2, 2]});
+        });
+    });
+    describe("diamondBounds", () => {
+        it("should correctly bound expected points", () => {
+            const inDiamond = R.allPass(diamondBounds);
+            expect(inDiamond([2, 2])).to.equal(true);
+            expect(inDiamond([1, 2])).to.equal(true);
+            expect(inDiamond([0, 2])).to.equal(true);
+            
+            expect(inDiamond([-1, 2])).to.equal(false);
+            expect(inDiamond([0, 1])).to.equal(false);
         });
     });
 });
