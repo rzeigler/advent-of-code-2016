@@ -1,9 +1,9 @@
-module Main 
+module Main
     (
         main
     ) where
 
 import AoC.Bootstrap (scaffold)
-import AoC.Day1 (solve_1)
+import AoC.Day1 (solvers)
 
-main = scaffold [solve_1]
+main = scaffold solvers

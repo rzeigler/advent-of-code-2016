@@ -1,38 +1,33 @@
-module AoC.Bootstrap 
-  ( 
+module AoC.Bootstrap
+  (
     scaffold
   ) where
-     
+
 import Control.Monad (sequence)
-import Data.Text (Text)
-import qualified Data.Text.IO as TIO (readFile, putStrLn)
+import Data.Maybe (fromMaybe)
+import Data.Text (Text, pack)
+import qualified Data.Text.IO as TIO (readFile, putStrLn, getContents)
 import System.Environment (getArgs)
-     
-import Options.Applicative
 
-data Args = Args Int String
-    deriving (Show)
-    
-args :: Parser Args
-args = Args 
-    <$> option auto
-        ( long "ver" 
-          <> short 'v'
-          <> metavar "N"
-          <> help "Select which version to run 1, 2, etc." )
-    <*> argument str (metavar "FILE")
-    
+noVersion = const $ pack "Unable to find a version to run"
 
-run :: [Text -> Text] -> Args -> IO ()
-run fs (Args v path) 
-    | v > 0 && v <= length fs = fmap (fs !! (v - 1)) (TIO.readFile path) >>= TIO.putStrLn
-    | otherwise = putStrLn $ "Available versions are in the range [1," ++ show (length fs + 1) ++ ")"
--- Scaffold a main function
-scaffold :: [Text -> Text] -> IO ()
-scaffold fs = execParser opts >>= run fs
+readVersion :: [String] -> Maybe Int
+readVersion [] = Nothing
+readVersion args = case reads (head args) of
+    [(i, _)] -> Just i
+    _ -> Nothing
+
+select :: [Text -> Text] -> Int -> Maybe (Text -> Text)
+select impls v = case drop (v - 1) impls of
+  (f:_) -> Just f
+  _ -> Nothing
+
+run :: [Text -> Text] -> [String] -> IO ()
+run [] _ = putStrLn "No implementations provided yet"
+run impls args = fmap impl TIO.getContents >>= TIO.putStrLn
   where
-      opts = info (helper <*> args)
-        ( fullDesc
-       <> progDesc "Print a greeting for TARGET"
-       <> header "hello - a test for optparse-applicative" )
-    
+    impl = fromMaybe noVersion $ readVersion args >>= select impls
+
+
+scaffold :: [Text -> Text] -> IO ()
+scaffold fs = getArgs >>= run fs

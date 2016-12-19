@@ -1,5 +1,5 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
--- Implementation for https://adventofcode.com/2016/day/1  
+-- Implementation for https://adventofcode.com/2016/day/1
 module AoC.Day1
   (
       Orient(N, S, E, W),
@@ -13,7 +13,8 @@ module AoC.Day1
       advance,
       rotate,
       update,
-      solve_1
+      solve_1,
+      solvers
   ) where
 
 import Data.Text (Text, pack)
@@ -42,10 +43,10 @@ readTurn 'R' = R
 
 data Position = Position V2 Orient deriving (Show, Eq)
 data Motion = Motion Turn Int deriving (Show, Eq)
-  
+
 
 -- Motion vector for a given direction
-deltas = 
+deltas =
   [(N, V2 (0, 1)),
    (S, V2 (0, -1)),
    (E, V2 (1, 0)),
@@ -63,13 +64,13 @@ start = Position (V2 (0, 0)) N
 -- Parsing input
 step :: Parser Motion
 step = Motion <$> turn <*> steps
-  where 
+  where
     turn :: Parser Turn
     turn = readTurn <$> oneOf ['L', 'R']
     steps :: Parser Int
     steps = read <$> many1 digit
     digit = oneOf "1234567890"
-    
+
 movement :: Parser [Motion]
 movement = sepBy1 step (string ", ")
 
@@ -90,7 +91,7 @@ advance n (Position coord orient) = Position coord' orient
     coord' = foldr mappend coord updates
     updates = replicate n delta
     delta = unwrap (lookup orient deltas)
-    
+
 update :: Motion -> Position -> Position
 update (Motion t n) p = advance n $ rotate t p
 
@@ -98,10 +99,12 @@ taxicab :: Position -> Int
 taxicab (Position (V2 (x, y)) _) = abs x + abs y
 
 solve_1 :: Text -> Text
-solve_1 t = 
+solve_1 t =
   let
     moves = parse movement "" t
     updates = fmap (fmap update) moves
     result = fmap (taxicab . foldl (&) start) updates
   in
     pack $ either show show result
+
+solvers = [solve_1]
