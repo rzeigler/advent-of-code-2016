@@ -4,5 +4,6 @@ module Main
     ) where
 
 import AoC.Bootstrap (scaffold)
-    
-main = scaffold [id]
+import AoC.Day1 (solve_1)
+
+main = scaffold [solve_1]

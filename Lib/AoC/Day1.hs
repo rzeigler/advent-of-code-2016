@@ -1,39 +1,47 @@
+{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
+-- Implementation for https://adventofcode.com/2016/day/1  
 module AoC.Day1
   (
-      Orient,
+      Orient(N, S, E, W),
       Turn,
-      Position,
+      Position(),
       Motion,
+      V2,
+      start,
       step,
-      movement
+      movement,
+      advance,
+      rotate,
+      update,
+      solve_1
   ) where
 
--- Implementation for https://adventofcode.com/2016/day/1  
-
-import Text.Parsec 
+import Data.Text (Text, pack)
+import Data.List
+import Data.Function ((&))
+import Text.Parsec
 import Text.Parsec.Char
 import Text.Parsec.Combinator
-import Text.Parsec.String
+import Text.Parsec.Text
 import Text.Parsec.Prim hiding ((<|>), many)
 
-newtype V2 = V2 (Int, Int)
-  deriving (Show)
+data V2 = V2 (Int, Int)
+  deriving (Show, Eq)
 instance Monoid V2 where
   mappend (V2 (x1, y1)) (V2 (x2, y2)) = V2 (x1 + x2, y1 + y2)
   mempty = V2 (0, 0)
 
-
 data Orient = N | S | E | W
-  deriving (Show)
+  deriving (Show, Eq)
 data Turn = R | L
-  deriving (Show)
+  deriving (Show, Eq)
 
 readTurn :: Char -> Turn
 readTurn 'L' = L
 readTurn 'R' = R
 
-data Position = Position V2 Orient deriving (Show)
-data Motion = Motion Turn Int deriving (Show)
+data Position = Position V2 Orient deriving (Show, Eq)
+data Motion = Motion Turn Int deriving (Show, Eq)
   
 
 -- Motion vector for a given direction
@@ -64,3 +72,36 @@ step = Motion <$> turn <*> steps
     
 movement :: Parser [Motion]
 movement = sepBy1 step (string ", ")
+
+-- For use with the lookup tables
+unwrap :: Maybe a -> a
+unwrap (Just a) = a
+unwrap Nothing = undefined
+
+lookupRotation :: Turn -> Orient -> Orient
+lookupRotation t o = unwrap $ lookup o rotations >>= lookup t
+
+rotate :: Turn -> Position -> Position
+rotate turn (Position coord orient) = Position coord (lookupRotation turn orient)
+
+advance :: Int -> Position -> Position
+advance n (Position coord orient) = Position coord' orient
+  where
+    coord' = foldr mappend coord updates
+    updates = replicate n delta
+    delta = unwrap (lookup orient deltas)
+    
+update :: Motion -> Position -> Position
+update (Motion t n) p = advance n $ rotate t p
+
+taxicab :: Position -> Int
+taxicab (Position (V2 (x, y)) _) = abs x + abs y
+
+solve_1 :: Text -> Text
+solve_1 t = 
+  let
+    moves = parse movement "" t
+    updates = fmap (fmap update) moves
+    result = fmap (taxicab . foldl (&) start) updates
+  in
+    pack $ either show show result
