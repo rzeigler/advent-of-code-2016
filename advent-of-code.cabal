@@ -18,10 +18,12 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs: Lib
-  exposed-modules: AoC.Bootstrap
+  exposed-modules: AoC.Bootstrap,
+                   AoC.Day1
   build-depends: base >=4.9 && <4.10,
                  text,
-                 optparse-applicative
+                 optparse-applicative,
+                 parsec
   default-language: Haskell2010
 
 executable aoc-day1

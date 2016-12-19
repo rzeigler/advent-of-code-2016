@@ -1,8 +1,7 @@
 module Main 
     (
         main
-    )
-    where
+    ) where
 
 import AoC.Bootstrap (scaffold)
     
