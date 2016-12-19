@@ -2,21 +2,23 @@
 -- Implementation for https://adventofcode.com/2016/day/1
 module AoC.Day1
   (
-      Orient(N, S, E, W),
-      Turn,
-      Position(),
-      Motion,
-      V2,
+      Orient(..),
+      Turn(..),
+      Position(..),
+      Motion(..),
+      V2(..),
       start,
       step,
       movement,
       advance,
       rotate,
       update,
+      updates,
       solve_1,
       solvers
   ) where
 
+import Control.Monad
 import Data.Text (Text, pack)
 import Data.List
 import Data.Function ((&))
@@ -44,6 +46,8 @@ readTurn 'R' = R
 data Position = Position V2 Orient deriving (Show, Eq)
 data Motion = Motion Turn Int deriving (Show, Eq)
 
+coord :: Position -> V2
+coord (Position v2 _) = v2
 
 -- Motion vector for a given direction
 deltas =
@@ -85,26 +89,61 @@ lookupRotation t o = unwrap $ lookup o rotations >>= lookup t
 rotate :: Turn -> Position -> Position
 rotate turn (Position coord orient) = Position coord (lookupRotation turn orient)
 
-advance :: Int -> Position -> Position
-advance n (Position coord orient) = Position coord' orient
+advance :: Int -> Position -> [Position]
+advance n (Position coord orient) = fmap (flip Position orient) coords
   where
-    coord' = foldr mappend coord updates
+    coords = scanl' mappend coord updates
     updates = replicate n delta
     delta = unwrap (lookup orient deltas)
 
 update :: Motion -> Position -> Position
-update (Motion t n) p = advance n $ rotate t p
+update (Motion t n) p = last (advance n $ rotate t p)
 
-taxicab :: Position -> Int
-taxicab (Position (V2 (x, y)) _) = abs x + abs y
+updates :: Motion -> Position -> [Position]
+updates (Motion t n) p = tail $ advance n $ rotate t p
+
+taxicab :: V2 -> Int
+taxicab (V2 (x, y)) = abs x + abs y
+
+parseInput :: Text -> Either ParseError [Motion]
+parseInput = parse movement ""
+
+(|>) :: (a -> b) -> (b -> c) -> (a -> c)
+(|>) = flip (.)
+
+walk :: [Motion] -> Int
+walk =
+  fmap update
+  |> foldl' (&) start
+  |> coord
+  |> taxicab
 
 solve_1 :: Text -> Text
 solve_1 t =
-  let
-    moves = parse movement "" t
-    updates = fmap (fmap update) moves
-    result = fmap (taxicab . foldl (&) start) updates
+  let result = fmap walk (parseInput t)
   in
     pack $ either show show result
 
-solvers = [solve_1]
+firstDuplicate :: Eq a => [a] -> a
+firstDuplicate = go []
+  where
+    go seen (a:rest)
+      | a `elem` seen = a
+      | otherwise = go (a:seen) rest
+
+walk2 :: [Motion] -> Int
+walk2 =
+  fmap updates
+  |> scanl' ((&) . last) [start]
+  |> join
+  |> fmap coord
+  |> firstDuplicate
+  |> taxicab
+
+solve_2 :: Text -> Text
+solve_2 t =
+  let result = fmap walk2 (parseInput t)
+  in
+    pack $ either show show result
+
+solvers = [solve_1, solve_2]
