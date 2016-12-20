@@ -15,6 +15,9 @@ import Text.Parsec.Combinator
 import Text.Parsec.Text
 import Text.Parsec.Prim hiding ((<|>), many)
 
+import Data.Matrix (fromLists, toList, transpose)
+import Data.List.Split (chunksOf)
+
 import AoC.Combinator (process, (|>))
 
 int :: Parser Int
@@ -45,5 +48,14 @@ solve_1 =
   |> filter areTriSides
   |> length
 
+solve_2 :: [[Int]] -> Int
+solve_2 =
+  fromLists
+  |> transpose
+  |> toList
+  |> chunksOf 3
+  |> solve_1
+
+
 solvers :: [Text -> Text]
-solvers = [process input solve_1]
+solvers = [process input solve_1, process input solve_2]
