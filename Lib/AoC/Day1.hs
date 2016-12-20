@@ -28,6 +28,8 @@ import Text.Parsec.Combinator
 import Text.Parsec.Text
 import Text.Parsec.Prim hiding ((<|>), many)
 
+import AoC.Combinator ((|>), unwrap)
+
 data V2 = V2 (Int, Int)
   deriving (Show, Eq)
 instance Monoid V2 where
@@ -78,11 +80,6 @@ step = Motion <$> turn <*> steps
 movement :: Parser [Motion]
 movement = sepBy1 step (string ", ")
 
--- For use with the lookup tables
-unwrap :: Maybe a -> a
-unwrap (Just a) = a
-unwrap Nothing = undefined
-
 lookupRotation :: Turn -> Orient -> Orient
 lookupRotation t o = unwrap $ lookup o rotations >>= lookup t
 
@@ -97,7 +94,7 @@ advance n (Position coord orient) = fmap (flip Position orient) coords
     delta = unwrap (lookup orient deltas)
 
 update :: Motion -> Position -> Position
-update (Motion t n) p = last (advance n $ rotate t p)
+update m p = last (updates m p)
 
 updates :: Motion -> Position -> [Position]
 updates (Motion t n) p = tail $ advance n $ rotate t p
@@ -107,9 +104,6 @@ taxicab (V2 (x, y)) = abs x + abs y
 
 parseInput :: Text -> Either ParseError [Motion]
 parseInput = parse movement ""
-
-(|>) :: (a -> b) -> (b -> c) -> (a -> c)
-(|>) = flip (.)
 
 walk :: [Motion] -> Int
 walk =
