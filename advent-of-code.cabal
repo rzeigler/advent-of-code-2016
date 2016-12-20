@@ -21,6 +21,7 @@ library
   exposed-modules: AoC.Bootstrap,
                    AoC.Day1,
                    AoC.Day3,
+                   AoC.Day4,
                    AoC.Combinator
   build-depends: base >=4.9 && <4.10,
                  text,
@@ -40,6 +41,13 @@ executable aoc-day1
 executable aoc-day3
   hs-source-dirs: Day
   main-is: Day3.hs
+  build-depends:       base >=4.9 && <4.10,
+                       advent-of-code
+  default-language:    Haskell2010
+
+executable aoc-day4
+  hs-source-dirs: Day
+  main-is: Day4.hs
   build-depends:       base >=4.9 && <4.10,
                        advent-of-code
   default-language:    Haskell2010
