@@ -3,7 +3,8 @@ module AoC.Day6 (
 ) where
 
 import Prelude hiding (lines)
-import Data.List (foldl', foldl1', transpose)
+import Data.Ord
+import Data.List (foldl', foldl1', transpose, maximumBy, minimumBy)
 import Data.Map.Strict (Map, empty, toList, adjust, member, insert)
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -23,15 +24,31 @@ iterateMostFrequent (sc, si) (c, i)
   | si > i = (sc, si)
   | otherwise = (c, i)
 
-mostCommonChar :: String -> Char
-mostCommonChar =  fst . foldl1' iterateMostFrequent . toList . foldl' updateCounts empty
 
-solve_1 :: Text -> Text
-solve_1 = input
+histogram :: String -> [(Char, Int)]
+histogram = toList . foldl' updateCounts empty
+
+mostCommon :: [(Char, Int)] -> Char
+mostCommon = fst . maximumBy (comparing snd)
+
+leastCommon :: [(Char, Int)] -> Char
+leastCommon = fst . minimumBy (comparing snd)
+
+histograms :: Text -> [[(Char, Int)]]
+histograms = input
   |> fmap T.unpack
   |> transpose
-  |> fmap mostCommonChar
+  |> fmap histogram
+
+solve_1 :: Text -> Text
+solve_1 = histograms
+  |> fmap mostCommon
+  |> T.pack
+
+solve_2 :: Text -> Text
+solve_2 = histograms
+  |> fmap leastCommon
   |> T.pack
 
 solvers :: [Text -> Text]
-solvers = [solve_1]
+solvers = [solve_1, solve_2]
