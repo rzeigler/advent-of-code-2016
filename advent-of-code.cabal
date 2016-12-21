@@ -19,16 +19,20 @@ cabal-version:       >=1.10
 library
   hs-source-dirs: Lib
   exposed-modules: AoC.Bootstrap,
+                   AoC.Combinator,
                    AoC.Day1,
                    AoC.Day3,
                    AoC.Day4,
-                   AoC.Combinator
+                   AoC.Day5
   build-depends: base >=4.9 && <4.10,
                  text,
                  optparse-applicative,
                  parsec,
                  matrix,
-                 split
+                 split,
+                 cryptonite,
+                 bytestring,
+                 mtl
   default-language: Haskell2010
 
 executable aoc-day1
@@ -48,6 +52,13 @@ executable aoc-day3
 executable aoc-day4
   hs-source-dirs: Day
   main-is: Day4.hs
+  build-depends:       base >=4.9 && <4.10,
+                       advent-of-code
+  default-language:    Haskell2010
+
+executable aoc-day5
+  hs-source-dirs: Day
+  main-is: Day5.hs
   build-depends:       base >=4.9 && <4.10,
                        advent-of-code
   default-language:    Haskell2010
