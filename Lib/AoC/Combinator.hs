@@ -2,7 +2,8 @@ module AoC.Combinator (
   (|>),
   unwrap,
   process,
-  showT
+  showT,
+  aperture
 ) where
 
 import Data.Text (Text, pack)
@@ -25,3 +26,14 @@ process p f t = render $ fmap f (parse p "" t)
 
 showT :: Show a => a -> Text
 showT = pack . show
+
+aperture :: Int -> [a] -> [[a]]
+aperture n = run n []
+  where 
+    run :: Int -> [[a]] -> [a] -> [[a]]
+    run n accum as =
+      let 
+        begin = take n as
+      in 
+        if length begin == n then run n (begin:accum) (tail as)
+        else reverse accum

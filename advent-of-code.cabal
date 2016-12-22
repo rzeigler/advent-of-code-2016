@@ -24,7 +24,8 @@ library
                    AoC.Day3,
                    AoC.Day4,
                    AoC.Day5,
-                   AoC.Day6
+                   AoC.Day6,
+                   AoC.Day7
   build-depends: base >=4.9 && <4.10,
                  text,
                  optparse-applicative,
@@ -68,6 +69,13 @@ executable aoc-day5
 executable aoc-day6
   hs-source-dirs: Day
   main-is: Day6.hs
+  build-depends:       base >=4.9 && <4.10,
+                       advent-of-code
+  default-language:    Haskell2010
+  
+executable aoc-day7
+  hs-source-dirs: Day
+  main-is: Day7.hs
   build-depends:       base >=4.9 && <4.10,
                        advent-of-code
   default-language:    Haskell2010
