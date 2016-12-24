@@ -25,57 +25,21 @@ library
                    AoC.Day4,
                    AoC.Day5,
                    AoC.Day6,
-                   AoC.Day7
+                   AoC.Day7,
+                   AoC.Day8,
+                   
+                   AoC.Day11
   build-depends: base >=4.9 && <4.10,
                  text,
                  optparse-applicative,
                  parsec,
                  matrix,
+                 vector,
                  split,
                  cryptonite,
                  bytestring,
                  containers,
+                 hashmap,
+                 hashable,
                  mtl
   default-language: Haskell2010
-
-executable aoc-day1
-  hs-source-dirs: Day
-  main-is: Day1.hs
-  build-depends:       base >=4.9 && <4.10,
-                       advent-of-code
-  default-language:    Haskell2010
-
-executable aoc-day3
-  hs-source-dirs: Day
-  main-is: Day3.hs
-  build-depends:       base >=4.9 && <4.10,
-                       advent-of-code
-  default-language:    Haskell2010
-
-executable aoc-day4
-  hs-source-dirs: Day
-  main-is: Day4.hs
-  build-depends:       base >=4.9 && <4.10,
-                       advent-of-code
-  default-language:    Haskell2010
-
-executable aoc-day5
-  hs-source-dirs: Day
-  main-is: Day5.hs
-  build-depends:       base >=4.9 && <4.10,
-                       advent-of-code
-  default-language:    Haskell2010
-
-executable aoc-day6
-  hs-source-dirs: Day
-  main-is: Day6.hs
-  build-depends:       base >=4.9 && <4.10,
-                       advent-of-code
-  default-language:    Haskell2010
-  
-executable aoc-day7
-  hs-source-dirs: Day
-  main-is: Day7.hs
-  build-depends:       base >=4.9 && <4.10,
-                       advent-of-code
-  default-language:    Haskell2010

@@ -1,0 +1,8 @@
+# The first floor contains a promethium generator and a promethium-compatible microchip.
+# The second floor contains a cobalt generator, a curium generator, a ruthenium generator, and a plutonium generator.
+# The third floor contains a cobalt-compatible microchip, a curium-compatible microchip, a ruthenium-compatible microchip, and a plutonium-compatible microchip.
+# The fourth floor contains nothing relevant.
+F1: [Promethium:G, Promethium:C]
+F2: [Cobalt:G, Curium:G, Ruthenium:G, Plutonium:G]
+F3: [Cobalt:C, Curium:C, Ruthenium:C, Plutonium:C]
+F4: []
