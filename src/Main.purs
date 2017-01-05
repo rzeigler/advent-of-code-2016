@@ -1,29 +1,39 @@
 module Main where
 
 import Prelude
-import Control.Monad.Aff (Aff, launchAff, liftEff')
 import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE, logShow, log)
+import Control.Monad.Eff.Console (CONSOLE, log, error)
 import Control.Monad.Eff.Exception (EXCEPTION)
+import Control.Monad.Aff (launchAff, liftEff')
 import Data.Either (Either(..))
 import Data.Int (fromNumber)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), maybe)
+import Data.Array (index, (!!))
 import Node.Encoding (Encoding(UTF8))
 import Node.FS (FS)
 import Node.FS.Aff (readTextFile)
 import Node.Yargs.Applicative (yarg, runY)
 import Node.Yargs.Setup (example, usage)
 
-impls :: Array (Array String -> String)
-impls = []
+impls :: Array (Array (String -> String))
+impls = [[id]]
+
+impl :: Int -> Int -> Maybe (String -> String)
+impl day sect = (impls !! (day - 1)) >>= (flip index) (sect - 1) 
+
+badImpl :: forall eff. Eff (console :: CONSOLE | eff) Unit
+badImpl = error "Invalid Day or Section"
+
+runImpl :: forall eff. String -> (String -> String) -> Eff (fs :: FS, console :: CONSOLE, err :: EXCEPTION | eff) Unit
+runImpl file f = 
+  let run = launchAff $ do
+              output <- f <$> readTextFile UTF8 file 
+              liftEff' (log output)
+  in run *> pure unit
+  
 
 app :: forall eff. Maybe Int -> Maybe Int -> String -> Eff (fs :: FS, console :: CONSOLE, err :: EXCEPTION | eff) Unit
-app (Just day) (Just sect) file = run *> pure unit
-  where
-    run = launchAff $ do
-      text <- readTextFile UTF8 file
-      liftEff' (log text)
-
+app (Just day) (Just sect) file = maybe badImpl (runImpl file) (impl day sect)
 app _ _ _ = log "Section and Day must both be Integers"
 
 main :: forall eff. Eff (fs :: FS, console :: CONSOLE, err :: EXCEPTION | eff) Unit
