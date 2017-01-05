@@ -6,9 +6,8 @@ import Control.Alt ((<|>))
 import Control.Monad.State (State, execState)
 import Data.Either (either)
 import Data.Foldable (foldl)
-import Data.Functor (map)
 import Data.Int (floor)
-import Data.List (List(..), elemIndex, null, reverse)
+import Data.List (List(..), elemIndex, reverse)
 import Data.Maybe (Maybe(..))
 import Data.Ord (abs)
 import Data.String (fromCharArray)
@@ -20,6 +19,8 @@ import Partial.Unsafe (unsafePartial)
 import Text.Parsing.StringParser (Parser, runParser)
 import Text.Parsing.StringParser.Combinators (many1, sepBy1)
 import Text.Parsing.StringParser.String (anyDigit, char, eof, skipSpaces, whiteSpace)
+
+import Util (liftImpl)
 
 data Dir = L | R
 
@@ -113,6 +114,9 @@ simulate ls =
   let sim = foldl (*>) (advancer 0) (map walk ls)
   in execState sim (Walk start Nil)
 
+liftDayImpl :: (List Move -> Int) -> String -> String
+liftDayImpl = liftImpl inputParser
+
 part1Impl :: List Move -> Int
 part1Impl = simulate
             >>> view (positionLens..pointLens)
@@ -133,13 +137,5 @@ part2Impl = simulate
             >>> findDuplicate
             >>> taxicab
 
-part1 :: String -> String
-part1 input = either show show result
-  where result = part1Impl <$> runParser inputParser input
-
-part2 :: String -> String
-part2 input = either show show result
-  where result = part2Impl <$> runParser inputParser input
-
 day :: Array (String -> String)
-day = [part1, part2]
+day = [liftDayImpl part1Impl, liftDayImpl part2Impl]
