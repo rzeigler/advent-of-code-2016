@@ -14,9 +14,10 @@ import Node.FS (FS)
 import Node.FS.Aff (readTextFile)
 import Node.Yargs.Applicative (yarg, runY)
 import Node.Yargs.Setup (example, usage)
+import Day1 as Day1
 
 impls :: Array (Array (String -> String))
-impls = [[id]]
+impls = [Day1.day]
 
 impl :: Int -> Int -> Maybe (String -> String)
 impl day sect = (impls !! (day - 1)) >>= (flip index) (sect - 1) 

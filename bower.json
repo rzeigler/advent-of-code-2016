@@ -17,7 +17,8 @@
     "purescript-eff": "^2.0.0",
     "purescript-node-streams": "^2.0.0",
     "purescript-node-process": "^3.0.0",
-    "purescript-arrays": "^3.1.0"
+    "purescript-arrays": "^3.1.0",
+    "purescript-string-parsers": "^2.0.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^2.0.0"
