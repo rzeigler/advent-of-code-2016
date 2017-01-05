@@ -1,19 +1,22 @@
 module Day1 (day) where
 
 import Prelude
-import Control.Alt ((<|>))
-import Control.Monad.State (State)
 import Control.Monad.State as State
+import Control.Alt ((<|>))
+import Control.Monad.State (State, execState)
 import Data.Either (either)
 import Data.Foldable (foldl)
+import Data.Functor (map)
 import Data.Int (floor)
-import Data.List (List)
+import Data.List (List(..), elemIndex, null, reverse)
+import Data.Maybe (Maybe(..))
 import Data.Ord (abs)
 import Data.String (fromCharArray)
 import Data.Tuple (Tuple(..))
 import Global (readInt)
-import Optic.Core (Lens', over, (..))
+import Optic.Core (Lens', over, view, (..))
 import Optic.Lens (lens)
+import Partial.Unsafe (unsafePartial)
 import Text.Parsing.StringParser (Parser, runParser)
 import Text.Parsing.StringParser.Combinators (many1, sepBy1)
 import Text.Parsing.StringParser.String (anyDigit, char, eof, skipSpaces, whiteSpace)
@@ -89,12 +92,54 @@ coordsLens = lens (\(Walk _ c) -> c)
 rotator :: Dir -> State Walk Unit
 rotator dir = State.modify (over positionLens (rotate dir))
 
+advancer :: Int -> State Walk Unit
+advancer 0 = State.modify id
+advancer ct = do
+  State.modify (over positionLens advance)
+  point <- view (positionLens..pointLens) <$> State.get
+  State.modify (over coordsLens (Cons point))
+  advancer (ct - 1)
+
+walk :: Move -> State Walk Unit
+walk (Move dir ct) = do
+  rotator dir
+  advancer ct
+
+start :: Position
+start = Position N (Tuple 0 0)
+
+simulate :: List Move -> Walk
+simulate ls =
+  let sim = foldl (*>) (advancer 0) (map walk ls)
+  in execState sim (Walk start Nil)
+
 part1Impl :: List Move -> Int
-part1Impl ms = 0
+part1Impl = simulate
+            >>> view (positionLens..pointLens)
+            >>> taxicab
+
+findDuplicate :: List (Tuple Int Int) -> Tuple Int Int
+findDuplicate pts = unsafePartial $ run Nil pts
+  where
+    run :: Partial => List (Tuple Int Int) -> List (Tuple Int Int) -> Tuple Int Int
+    run seen (Cons h rest) = case elemIndex h seen of
+      Just _ -> h
+      Nothing -> run (Cons h seen) rest
+
+part2Impl :: List Move -> Int
+part2Impl = simulate
+            >>> view coordsLens
+            >>> reverse
+            >>> findDuplicate
+            >>> taxicab
 
 part1 :: String -> String
 part1 input = either show show result
   where result = part1Impl <$> runParser inputParser input
 
+part2 :: String -> String
+part2 input = either show show result
+  where result = part2Impl <$> runParser inputParser input
+
 day :: Array (String -> String)
-day = [part1]
+day = [part1, part2]
