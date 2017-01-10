@@ -2,23 +2,26 @@ module Day2
   ( RangeConstraint(..)
   , Constraints(..)
   , Vec2(..)
+  , Dir(..)
+  , Env
   , inRange
   , isConstrained
+  , env1
+  , move
+  , line
+  , file
   ) where 
 
 import Prelude
-import Control.Monad (pure)
-import Control.Monad.RWS (RWS, tell, get, put)
-import Control.Monad.Reader (Reader(..), ReaderT(..), ask, runReader)
+import Control.Monad.RWS (RWS, get, put, tell, ask)
 import Data.Array (index, (!!))
 import Data.Foldable (foldl)
-import Data.List (List)
-import Data.Tuple (Tuple(..))
+import Data.Traversable (traverse)
 import Partial.Unsafe (unsafePartial)
 import Util (unwrap)
 
 data RangeConstraint = RangeConstraint (Int -> Int) Ordering
-data Constraints = Constraints Int Int (List RangeConstraint)
+data Constraints = Constraints Int Int (Array RangeConstraint)
 data Vec2 = Vec2 Int Int
 instance vec2Show :: Show Vec2 where
   show (Vec2 x y) = "(" <> show x <> "," <> show y <> ")"
@@ -56,9 +59,40 @@ grid1 = [
   ['7', '8', '9']
 ]
 
+constraint1 :: Constraints
+constraint1 = Constraints 0 2 [RangeConstraint (const 2) GT, RangeConstraint (const 0) LT]
+
 data Env = Env Constraints (Array (Array Char))
 
-deref :: Vec2 -> RWS (Array (Array Char)) (Array String) Vec2 Char
-deref (Vec2 x y) = do
-  grid <- ask
+env1 :: Env
+env1 = Env constraint1 grid1
+
+type PadRWS = RWS Env (Array String) Vec2
+
+deref :: PadRWS Char
+deref = do
+  v2@(Vec2 x y) <- get
+  (Env _ grid) <- ask
+  tell ["position is now " <> show v2]
   pure (unsafePartial $ unwrap $ (flip index) x =<< (grid !! y))
+
+move :: Dir -> PadRWS Char
+move dir = do
+  tell ["taking action " <> show dir]
+  old <- get
+  (Env cs pad) <- ask
+  let next = old <> delta dir
+  if isConstrained next cs
+    then do
+      put next
+      deref
+    else do
+      tell ["new position " <> show next <> " is out of bounds"]
+      deref
+      
+line :: Array Dir -> PadRWS Char
+line = map move >>> foldl (*>) (pure '-')
+
+file :: Array (Array Dir) -> PadRWS (Array Char)
+file = traverse line  
+
